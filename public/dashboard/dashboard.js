@@ -139,7 +139,11 @@
             `<option value="${esc(s.site_key)}">${esc(s.name)}</option>`
         ).join('');
         site = sites[0];
-        refresh();
+        if (!site) {
+            switchTab('install');
+        } else {
+            refresh();
+        }
     }
 
     $('#siteSel').onchange = (e) => {
@@ -175,7 +179,10 @@
     const loaders = { overview, problems, pages, heatmaps, flow, sessions, issues, compare, install };
 
     async function refresh() {
-        if (!site) return;
+        if (!site && activeTab !== 'install') {
+            $('#tab-' + activeTab).innerHTML = '<div class="empty"><span class="icon">⚠️</span>Please add a site first. Go to Install / Sites.</div>';
+            return;
+        }
         const box = $('#tab-' + activeTab);
         box.innerHTML = skelGrid();
         try {
@@ -821,11 +828,13 @@
 
         box.innerHTML = `
         <h2>⚙️ Install on your Website</h2>
+        ${site ? `
         <p style="margin-bottom:12px;color:var(--text2)">
             Add this single line to your website's <code>&lt;head&gt;</code> or before <code>&lt;/body&gt;</code>:
         </p>
         <pre id="snippet">${esc(snippet(site.site_key))}</pre>
         <button class="btn ghost small" id="copySnippet" style="margin-top:8px">📋 Copy</button>
+        ` : `<div class="card kpi warn" style="margin-top:12px"><b>No sites added yet. Add a site below to get your tracking code.</b></div>`}
 
         <h3 style="margin-top:24px">Optional Attributes</h3>
         <div class="tw"><table>
@@ -859,11 +868,13 @@
             <button class="btn" id="addSite">+ Add New Site</button>
         </p>`;
 
-        $('#copySnippet').onclick = () => {
-            navigator.clipboard.writeText(snippet(site.site_key))
-                .then(() => toast('Snippet copied!', 'success'))
-                .catch(() => toast('Could not copy', 'error'));
-        };
+        if (site) {
+            $('#copySnippet').onclick = () => {
+                navigator.clipboard.writeText(snippet(site.site_key))
+                    .then(() => toast('Snippet copied!', 'success'))
+                    .catch(() => toast('Could not copy', 'error'));
+            };
+        }
 
         $$('[data-rot]', box).forEach((b) => (b.onclick = async () => {
             if (!confirm('Rotate site key? You must update your embed script.')) return;
@@ -884,8 +895,9 @@
             const origin = prompt('Site origin (e.g. https://mysite.com)? Leave blank for any.') || '';
             await call('/sites', {}, { method: 'POST', body: { name, origin } });
             sites = await call('/sites');
+            site = sites.find(s => s.name === name) || sites[0]; // Auto-select new site
             $('#siteSel').innerHTML = sites.map((s) =>
-                `<option value="${esc(s.site_key)}" ${s.site_key === site.site_key ? 'selected' : ''}>${esc(s.name)}</option>`
+                `<option value="${esc(s.site_key)}" ${s.site_key === site?.site_key ? 'selected' : ''}>${esc(s.name)}</option>`
             ).join('');
             toast('Site added!', 'success');
             install(box);
