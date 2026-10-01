@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Usability Tracker — Dashboard</title>
+    <meta name="description" content="Monitor user behaviour, heatmaps, rage clicks, dead clicks, sessions, and usability scores for your website.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ── Login ────────────────────────────────────────────── -->
+<div id="login">
+    <form id="loginForm">
+        <div class="logo">🔥</div>
+        <h1>Usability Tracker</h1>
+        <p>Enter your admin token to continue</p>
+        <input id="tokenInput" type="password" placeholder="Admin token" autocomplete="current-password" required>
+        <button type="submit" class="btn" id="loginBtn">Login →</button>
+        <div id="loginErr"></div>
+    </form>
+</div>
+
+<!-- ── App ──────────────────────────────────────────────── -->
+<div id="app" hidden>
+    <header>
+        <div class="brand">🔥 Usability Tracker</div>
+        <div class="filters">
+            <select id="siteSel" title="Select site"></select>
+            <select id="range" title="Date range">
+                <option value="24h">Last 24h</option>
+                <option value="7d" selected>Last 7 days</option>
+                <option value="30d">Last 30 days</option>
+                <option value="90d">Last 90 days</option>
+                <option value="all">All time</option>
+            </select>
+            <select id="device" title="Device filter">
+                <option value="all">All devices</option>
+                <option value="desktop">Desktop</option>
+                <option value="tablet">Tablet</option>
+                <option value="mobile">Mobile</option>
+            </select>
+            <label class="ar-badge" title="Auto-refresh every 60s">
+                <input type="checkbox" id="autoRefresh" style="margin:0"> Auto-refresh
+                <span class="ar-dot" id="arDot" hidden></span>
+            </label>
+            <button id="refresh" class="btn ghost small">⟳ Refresh</button>
+            <button id="logout" class="btn ghost small">Logout</button>
+        </div>
+    </header>
+
+    <nav id="tabs">
+        <button data-tab="overview" class="active">📊 Overview</button>
+        <button data-tab="problems">🚨 Problems</button>
+        <button data-tab="pages">📄 Pages</button>
+        <button data-tab="heatmaps">🔥 Heatmaps</button>
+        <button data-tab="flow">🔀 Flow</button>
+        <button data-tab="sessions">🎬 Sessions</button>
+        <button data-tab="issues">🐞 Errors &amp; Forms</button>
+        <button data-tab="compare">📈 Compare</button>
+        <button data-tab="install">⚙️ Install / Sites</button>
+    </nav>
+
+    <main>
+        <section id="tab-overview"></section>
+        <section id="tab-problems" hidden></section>
+        <section id="tab-pages" hidden></section>
+        <section id="tab-heatmaps" hidden></section>
+        <section id="tab-flow" hidden></section>
+        <section id="tab-sessions" hidden></section>
+        <section id="tab-issues" hidden></section>
+        <section id="tab-compare" hidden></section>
+        <section id="tab-install" hidden></section>
+    </main>
+</div>
+
+<!-- ── Session Detail Modal ─────────────────────────────── -->
+<dialog id="dlg">
+    <div id="dlgBody"></div>
+    <div class="dlg-footer">
+        <button class="btn ghost" onclick="document.getElementById('dlg').close()">Close</button>
+    </div>
+</dialog>
+
+<!-- ── Toast container ──────────────────────────────────── -->
+<div id="toasts"></div>
+
+<script src="dashboard.js"></script>
+</body>
+</html>

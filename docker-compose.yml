@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+  app:
+    build: .
+    container_name: usability-tracker
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: 4000
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-change-me-super-secret}
+      DB_PATH: /app/data/usability.db
+      RETENTION_DAYS: ${RETENTION_DAYS:-90}
+      HMAC_SECRET: ${HMAC_SECRET:-change-me-hmac-secret-32-chars-min}
+    volumes:
+      - usability_data:/app/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4000/api/admin/ping", "--header", "x-admin-token:${ADMIN_TOKEN:-change-me-super-secret}"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  usability_data:
+    driver: local

@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>NovaBuy — Premium Demo Store</title>
+    <meta name="description" content="A demo e-commerce store for testing Usability Tracker features: clicks, rage clicks, dead clicks, scroll depth, and form interactions.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+    <script src="/tracker.js" data-site="demo_site_key_123" data-api="http://localhost:4000" defer></script>
+    <style>
+        :root {
+            --brand: #6366f1;
+            --brand2: #8b5cf6;
+            --accent: #ec4899;
+            --dark: #0f172a;
+            --text: #1e293b;
+            --muted: #64748b;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --radius: 16px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+
+        /* ── Nav ── */
+        nav {
+            position: sticky; top: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 32px; height: 64px;
+            background: rgba(255,255,255,0.9); backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 20px rgba(0,0,0,.06);
+        }
+        .logo { font-weight: 800; font-size: 20px; background: linear-gradient(135deg, #6366f1, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .nav-links { display: flex; gap: 28px; list-style: none; }
+        .nav-links a { color: var(--muted); text-decoration: none; font-weight: 500; font-size: 14px; transition: color .15s; }
+        .nav-links a:hover { color: var(--brand); }
+        .nav-actions { display: flex; gap: 10px; }
+
+        /* ── Buttons ── */
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; border: 0; border-radius: 10px; font: 600 14px/1 'Inter', sans-serif; cursor: pointer; transition: all .15s; }
+        .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; box-shadow: 0 4px 14px rgba(99,102,241,.4); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99,102,241,.5); }
+        .btn-primary:active { transform: none; }
+        .btn-ghost { background: transparent; color: var(--muted); border: 1.5px solid var(--border); }
+        .btn-ghost:hover { border-color: var(--brand); color: var(--brand); background: rgba(99,102,241,.04); }
+        /* Dead-click bait: looks like a button, does absolutely nothing */
+        .btn-broken { background: #fef3c7; color: #92400e; border: 1.5px dashed #f59e0b; cursor: pointer; }
+
+        /* ── Hero ── */
+        .hero {
+            padding: 100px 32px 80px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+            color: #fff; text-align: center; position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: ''; position: absolute; top: -120px; left: 50%; transform: translateX(-50%);
+            width: 600px; height: 600px; background: radial-gradient(circle, rgba(139,92,246,.3) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero-badge { display: inline-block; padding: 6px 16px; border-radius: 999px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); font-size: 13px; font-weight: 600; margin-bottom: 20px; }
+        .hero h1 { font-size: clamp(36px, 6vw, 64px); font-weight: 800; line-height: 1.1; margin-bottom: 20px; }
+        .hero h1 span { background: linear-gradient(135deg, #a78bfa, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero p { font-size: 18px; color: rgba(255,255,255,.7); max-width: 600px; margin: 0 auto 36px; line-height: 1.7; }
+        .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .hero-stats { display: flex; gap: 40px; justify-content: center; margin-top: 60px; flex-wrap: wrap; }
+        .hero-stat { text-align: center; }
+        .hero-stat .n { font-size: 32px; font-weight: 800; color: #a78bfa; }
+        .hero-stat .l { font-size: 13px; color: rgba(255,255,255,.5); margin-top: 4px; }
+
+        /* ── Section layout ── */
+        section { padding: 80px 32px; max-width: 1200px; margin: 0 auto; }
+        .section-header { text-align: center; margin-bottom: 48px; }
+        .section-tag { display: inline-block; padding: 4px 14px; border-radius: 999px; background: rgba(99,102,241,.1); color: var(--brand); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 12px; }
+        h2 { font-size: clamp(26px, 3vw, 36px); font-weight: 800; line-height: 1.2; }
+        .muted { color: var(--muted); margin-top: 12px; font-size: 16px; line-height: 1.7; }
+
+        /* ── Products ── */
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+        .product-card {
+            background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+            overflow: hidden; cursor: pointer; transition: all .2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,.04);
+        }
+        .product-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,.1); border-color: var(--brand); }
+        .product-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; background: linear-gradient(135deg, #e0e7ff, #ede9fe); display: flex; align-items: center; justify-content: center; font-size: 60px; }
+        .product-body { padding: 16px; }
+        .product-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--brand); }
+        .product-name { font-size: 16px; font-weight: 700; margin: 6px 0 8px; }
+        .product-price { font-size: 22px; font-weight: 800; color: var(--brand); }
+        .product-old { font-size: 14px; color: var(--muted); text-decoration: line-through; margin-left: 6px; }
+        .product-footer { display: flex; gap: 8px; margin-top: 14px; }
+
+        /* ── Features ── */
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .feature-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; transition: all .2s; }
+        .feature-card:hover { border-color: var(--brand); box-shadow: 0 8px 24px rgba(99,102,241,.1); }
+        .feature-icon { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #e0e7ff, #ede9fe); display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 16px; }
+        .feature-title { font-weight: 700; font-size: 16px; margin-bottom: 8px; }
+        .feature-desc { color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+        /* ── Testimonials ── */
+        .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .testimonial { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+        .testimonial-text { font-size: 15px; line-height: 1.7; color: var(--text); margin-bottom: 16px; }
+        .testimonial-author { display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #ec4899); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 16px; }
+        .author-name { font-weight: 600; font-size: 14px; }
+        .author-role { color: var(--muted); font-size: 12px; }
+        .stars { color: #f59e0b; font-size: 14px; margin-bottom: 12px; }
+
+        /* ── Contact ── */
+        .contact-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+        @media (max-width: 768px) { .contact-wrap { grid-template-columns: 1fr; } }
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+        .form-input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 10px; font: 14px/1.5 'Inter', sans-serif; color: var(--text); transition: border .15s; }
+        .form-input:focus { outline: none; border-color: var(--brand); }
+        textarea.form-input { height: 120px; resize: vertical; }
+
+        /* ── Tracker test panel ── */
+        .test-panel {
+            background: var(--dark); border-radius: var(--radius); padding: 24px; color: #e2e8f0;
+            margin-top: 60px;
+        }
+        .test-panel h3 { color: #a78bfa; margin-bottom: 14px; font-size: 15px; }
+        .test-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+        .test-btn {
+            padding: 10px 14px; border-radius: 10px; border: 0; font: 600 13px/1.4 'Inter', sans-serif;
+            cursor: pointer; text-align: center; transition: all .15s;
+        }
+        .test-btn:hover { transform: scale(1.02); }
+
+        /* ── Footer ── */
+        footer { background: var(--dark); color: #94a3b8; padding: 40px 32px; text-align: center; font-size: 14px; }
+        footer strong { color: #fff; }
+
+        /* ── Scroll indicator ── */
+        .scroll-bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, #6366f1, #ec4899); z-index: 9999; transition: width .1s; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero { padding: 60px 20px 50px; }
+            section { padding: 50px 20px; }
+            nav { padding: 0 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="scroll-bar" id="scrollBar"></div>
+
+<nav>
+    <div class="logo">NovaBuy ✦</div>
+    <ul class="nav-links">
+        <li><a href="#products">Products</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#testimonials">Reviews</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="/demo/pricing.html">Pricing</a></li>
+    </ul>
+    <div class="nav-actions">
+        <button class="btn btn-ghost" id="cartBtn">🛒 Cart (0)</button>
+        <button class="btn btn-primary" id="cta">Get Started →</button>
+    </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+    <div class="hero-badge">🔥 Usability Tracker Demo Site</div>
+    <h1>Build Products<br><span>Users Actually Love</span></h1>
+    <p>NovaBuy is a fictional store designed to showcase all features of the Usability Tracker. Click around — every interaction is being recorded!</p>
+    <div class="hero-actions">
+        <button class="btn btn-primary" id="heroShop" style="font-size:16px;padding:14px 28px">Shop Now →</button>
+        <!-- Broken button for dead-click testing -->
+        <button class="btn btn-broken" id="fake" title="This does nothing on purpose (dead click test)">⚠ Limited Offer (broken)</button>
+    </div>
+    <div class="hero-stats">
+        <div class="hero-stat"><div class="n">12K+</div><div class="l">Happy Customers</div></div>
+        <div class="hero-stat"><div class="n">4.9★</div><div class="l">Average Rating</div></div>
+        <div class="hero-stat"><div class="n">99%</div><div class="l">Uptime SLA</div></div>
+        <div class="hero-stat"><div class="n">500+</div><div class="l">Products</div></div>
+    </div>
+</div>
+
+<!-- PRODUCTS -->
+<section id="products">
+    <div class="section-header">
+        <div class="section-tag">Best Sellers</div>
+        <h2>Featured Products</h2>
+        <p class="muted">Click products to see dead click / rage click detection in action</p>
+    </div>
+    <div class="products-grid">
+        <div class="product-card">
+            <div class="product-img">🎧</div>
+            <div class="product-body">
+                <div class="product-tag">Audio</div>
+                <div class="product-name">Nova Pro Headphones</div>
+                <div><span class="product-price">$129</span><span class="product-old">$199</span></div>
+                <div class="product-footer">
+                    <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="addCart('Headphones')">Add to Cart</button>
+                    <button class="btn btn-ghost" onclick="wishlist(this)">♡</button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <div class="product-img">⌨️</div>
+            <div class="product-body">
+                <div class="product-tag">Peripherals</div>
+                <div class="product-name">MechKey X Pro Keyboard</div>
+                <div><span class="product-price">$89</span><span class="product-old">$140</span></div>
+                <div class="product-footer">
+                    <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="addCart('Keyboard')">Add to Cart</button>
+                    <button class="btn btn-ghost" onclick="wishlist(this)">♡</button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <div class="product-img">🖥️</div>
+            <div class="product-body">
+                <div class="product-tag">Displays</div>
+                <div class="product-name">UltraView 27" 4K Monitor</div>
+                <div><span class="product-price">$399</span><span class="product-old">$599</span></div>
+                <div class="product-footer">
+                    <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="addCart('Monitor')">Add to Cart</button>
+                    <button class="btn btn-ghost" onclick="wishlist(this)">♡</button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <div class="product-img">🖱️</div>
+            <div class="product-body">
+                <div class="product-tag">Peripherals</div>
+                <div class="product-name">AeroGlide Wireless Mouse</div>
+                <div><span class="product-price">$59</span><span class="product-old">$89</span></div>
+                <div class="product-footer">
+                    <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="addCart('Mouse')">Add to Cart</button>
+                    <button class="btn btn-ghost" onclick="wishlist(this)">♡</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" style="background: white; max-width: 100%; padding: 80px 0;">
+    <div style="max-width:1200px;margin:0 auto;padding:0 32px">
+        <div class="section-header">
+            <div class="section-tag">Why NovaBuy</div>
+            <h2>Everything You Need</h2>
+            <p class="muted">World-class features for a premium shopping experience</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card"><div class="feature-icon">⚡</div><div class="feature-title">Lightning Fast</div><div class="feature-desc">Sub-100ms load times with our globally distributed CDN and edge caching.</div></div>
+            <div class="feature-card"><div class="feature-icon">🔒</div><div class="feature-title">Bank-grade Security</div><div class="feature-desc">End-to-end encryption, PCI DSS compliance, and real-time fraud detection.</div></div>
+            <div class="feature-card"><div class="feature-icon">📱</div><div class="feature-title">Mobile-first</div><div class="feature-desc">Seamlessly adapted for every screen size, from wearables to 8K displays.</div></div>
+            <div class="feature-card"><div class="feature-icon">🤖</div><div class="feature-title">AI Recommendations</div><div class="feature-desc">Personalised product recommendations powered by our machine learning engine.</div></div>
+            <div class="feature-card"><div class="feature-icon">🌍</div><div class="feature-title">Global Shipping</div><div class="feature-desc">Deliver to 190+ countries with real-time package tracking and customs handling.</div></div>
+            <div class="feature-card"><div class="feature-icon">↩️</div><div class="feature-title">30-Day Returns</div><div class="feature-desc">Hassle-free returns with instant refunds — no questions asked.</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- LONG CONTENT for scroll depth testing -->
+<section style="max-width:800px;margin:0 auto;padding:80px 32px">
+    <div class="section-header">
+        <div class="section-tag">Deep Scroll Zone</div>
+        <h2>Our Story</h2>
+        <p class="muted">This long section tests scroll depth tracking. See how far users actually read.</p>
+    </div>
+    <div style="color:var(--muted);line-height:2;font-size:15px">
+        <p style="margin-bottom:24px">NovaBuy was founded in 2019 with a simple mission: make premium technology accessible to everyone. We started in a small garage in San Francisco, bootstrapped with just $5,000 and a dream.</p>
+        <p style="margin-bottom:24px">Our first product was a simple wireless mouse that sold 200 units in the first month. The community response was overwhelming — users loved the build quality and the honest pricing. That feedback became our north star.</p>
+        <p style="margin-bottom:24px">By 2021, we had expanded to 50 products and crossed $1M in annual revenue. More importantly, we maintained a 4.9-star average rating across 15,000+ verified reviews. The secret? We listen obsessively to our customers.</p>
+        <p style="margin-bottom:24px">In 2023, we launched the NovaBuy Pro membership program, giving members early access to new releases, exclusive discounts, and priority customer support. Within six months, 40% of our customers became members.</p>
+        <p style="margin-bottom:24px">Today we ship to 190+ countries and have helped over 100,000 customers upgrade their workspaces. We're still bootstrapped, still obsessed with quality, and still charging fair prices.</p>
+        <p>If you're reading this, the Usability Tracker has recorded how far you've scrolled down this page. That's the power of scroll depth analytics!</p>
+    </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials" style="background: linear-gradient(135deg, #0f172a, #1e1b4b); max-width: 100%; padding: 80px 0;">
+    <div style="max-width:1200px;margin:0 auto;padding:0 32px">
+        <div class="section-header" style="color:#fff">
+            <div class="section-tag" style="background:rgba(167,139,250,.2);color:#a78bfa">Reviews</div>
+            <h2>Loved by Thousands</h2>
+            <p class="muted" style="color:rgba(255,255,255,.6)">Real reviews from real customers</p>
+        </div>
+        <div class="testimonials-grid">
+            <div class="testimonial" style="background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);color:#e2e8f0">
+                <div class="stars">★★★★★</div>
+                <div class="testimonial-text">"The headphones are absolutely incredible — I've tried everything from Sony to Bose and nothing compares at this price point."</div>
+                <div class="testimonial-author"><div class="avatar">A</div><div><div class="author-name" style="color:#fff">Ahmad K.</div><div class="author-role">Verified Buyer</div></div></div>
+            </div>
+            <div class="testimonial" style="background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);color:#e2e8f0">
+                <div class="stars">★★★★★</div>
+                <div class="testimonial-text">"Fast shipping, perfect packaging, and the product exceeded all expectations. NovaBuy has earned a loyal customer for life."</div>
+                <div class="testimonial-author"><div class="avatar">S</div><div><div class="author-name" style="color:#fff">Sarah M.</div><div class="author-role">Verified Buyer</div></div></div>
+            </div>
+            <div class="testimonial" style="background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);color:#e2e8f0">
+                <div class="stars">★★★★☆</div>
+                <div class="testimonial-text">"Great quality overall. The keyboard's tactile feedback is satisfying. Would love more colour options, but it's a minor point."</div>
+                <div class="testimonial-author"><div class="avatar">J</div><div><div class="author-name" style="color:#fff">James T.</div><div class="author-role">Verified Buyer</div></div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+    <div class="section-header">
+        <div class="section-tag">Get in Touch</div>
+        <h2>Contact Us</h2>
+        <p class="muted">This form tests form field interaction tracking (names only, no values)</p>
+    </div>
+    <div class="contact-wrap">
+        <div>
+            <h3 style="font-size:20px;margin-bottom:16px">We'd love to hear from you</h3>
+            <p style="color:var(--muted);line-height:1.8;margin-bottom:24px">Whether you have a question about our products, want to discuss a partnership, or just want to say hi — our team is ready to help.</p>
+            <div style="display:flex;flex-direction:column;gap:14px">
+                <div style="display:flex;align-items:center;gap:12px;color:var(--muted);font-size:14px">📧 hello@novabuy.demo</div>
+                <div style="display:flex;align-items:center;gap:12px;color:var(--muted);font-size:14px">📞 +1 (555) 000-0000</div>
+                <div style="display:flex;align-items:center;gap:12px;color:var(--muted);font-size:14px">📍 123 Innovation Drive, San Francisco, CA</div>
+            </div>
+        </div>
+        <form onsubmit="formSubmit(event)">
+            <div class="form-group"><label class="form-label">Your Name</label><input class="form-input" name="name" placeholder="Enter your name"></div>
+            <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" name="email" type="email" placeholder="you@example.com"></div>
+            <div class="form-group"><label class="form-label">Subject</label><input class="form-input" name="subject" placeholder="What's on your mind?"></div>
+            <div class="form-group"><label class="form-label">Message</label><textarea class="form-input" name="message" placeholder="Write your message..."></textarea></div>
+            <button class="btn btn-primary" type="submit" style="width:100%;justify-content:center">Send Message →</button>
+        </form>
+    </div>
+</section>
+
+<!-- TRACKER TEST PANEL -->
+<section style="padding: 0 32px 60px; max-width:1200px; margin: 0 auto;">
+    <div class="test-panel">
+        <h3>🧪 Usability Tracker — Test Panel</h3>
+        <p style="font-size:13px;color:#94a3b8;margin-bottom:16px">Use these buttons to manually test specific tracking events. Check your dashboard after clicking!</p>
+        <div class="test-grid">
+            <button class="test-btn" style="background:#7c3aed;color:#fff" onclick="triggerRageClick()">😡 Simulate Rage Click</button>
+            <button class="test-btn" style="background:#dc2626;color:#fff" onclick="triggerError()">🐞 Trigger JS Error</button>
+            <button class="test-btn" style="background:#d97706;color:#fff" id="deadClickTest">💀 Dead Click Target</button>
+            <button class="test-btn" style="background:#059669;color:#fff" onclick="trackCustom()">⭐ Custom Event</button>
+            <button class="test-btn" style="background:#0284c7;color:#fff" onclick="goToPricing()">📄 Go to Pricing</button>
+            <button class="test-btn" style="background:#475569;color:#fff" onclick="showOptout()">🚫 Opt-out API test</button>
+        </div>
+        <div id="testLog" style="margin-top:14px;font-size:12px;color:#64748b;min-height:20px"></div>
+    </div>
+</section>
+
+<footer>
+    <strong>NovaBuy ✦</strong> — Demo Store for Usability Tracker Testing<br>
+    <span style="font-size:12px;margin-top:6px;display:block">Every click, scroll, and form interaction on this page is tracked by the Usability Tracker.</span>
+</footer>
+
+<script>
+    // Scroll progress bar
+    window.addEventListener('scroll', () => {
+        const pct = window.scrollY / (document.documentElement.scrollHeight - innerHeight) * 100;
+        document.getElementById('scrollBar').style.width = Math.min(pct, 100) + '%';
+    }, { passive: true });
+
+    // Cart state
+    let cartCount = 0;
+    function addCart(name) {
+        cartCount++;
+        document.getElementById('cartBtn').textContent = '🛒 Cart (' + cartCount + ')';
+        log('Added ' + name + ' to cart');
+        if (window.UsabilityTracker) UsabilityTracker.track('add_to_cart', { product: name });
+    }
+
+    function wishlist(btn) {
+        btn.textContent = btn.textContent === '♡' ? '♥' : '♡';
+        btn.style.color = btn.textContent === '♥' ? '#ec4899' : '';
+        log('Wishlist toggled');
+    }
+
+    function formSubmit(e) {
+        e.preventDefault();
+        alert('✅ Message sent! (Demo — check your tracker for form_submit event)');
+        log('Form submitted');
+    }
+
+    // Test functions
+    function triggerRageClick() {
+        const el = document.getElementById('fake');
+        // Simulate rapid clicks
+        for (let i = 0; i < 4; i++) {
+            setTimeout(() => el.click(), i * 150);
+        }
+        log('Simulated rapid clicks on #fake (rage click)');
+    }
+
+    function triggerError() {
+        try { undefinedFunction(); } catch(e) { window.onerror && window.onerror(e.message, location.href, 0, 0, e); log('JS error triggered: ' + e.message); throw e; }
+    }
+
+    function trackCustom() {
+        if (window.UsabilityTracker) {
+            UsabilityTracker.track('demo_custom_event', { source: 'test_panel', ts: Date.now() });
+            log('Custom event tracked via UsabilityTracker.track()');
+        } else {
+            log('Tracker not loaded yet');
+        }
+    }
+
+    function goToPricing() {
+        log('Navigating to pricing page...');
+        setTimeout(() => window.location.href = '/demo/pricing.html', 300);
+    }
+
+    function showOptout() {
+        if (window.UsabilityTracker) {
+            if (UsabilityTracker.isOptedOut()) {
+                UsabilityTracker.optIn();
+                log('Opted back IN — tracking resumed');
+            } else {
+                UsabilityTracker.optOut();
+                log('Opted OUT — tracking paused. Click again to opt back in.');
+            }
+        }
+    }
+
+    function log(msg) {
+        const el = document.getElementById('testLog');
+        el.textContent = '→ ' + msg;
+    }
+
+    // Hero CTA
+    document.getElementById('heroShop').onclick = () => {
+        document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
+        log('Hero CTA clicked → scrolled to products');
+    };
+
+    document.getElementById('cta').onclick = () => {
+        document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+        log('Nav CTA clicked → scrolled to contact');
+    };
+
+    // Dead click target (looks like a button, does nothing in tracker terms)
+    // The tracker will detect this as a dead click after 700ms with no DOM mutation
+</script>
+</body>
+</html>

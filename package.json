@@ -1,0 +1,35 @@
+{
+    "name": "usability-tracker",
+    "version": "2.0.0",
+    "main": "server/index.js",
+    "scripts": {
+        "start": "node server/index.js",
+        "dev": "node --watch server/index.js",
+        "build": "node scripts/build.js",
+        "seed": "node scripts/seed.js",
+        "seed:large": "node scripts/seed.js --count=5000",
+        "test": "node --test tests/**/*.test.js",
+        "test:watch": "node --test --watch tests/**/*.test.js"
+    },
+    "description": "Drop-in usability analytics: click/rage/dead-click heatmaps, scroll depth, mouse movement, forms, JS errors, sessions and a usability score per page.",
+    "keywords": [
+        "analytics",
+        "heatmap",
+        "usability",
+        "tracker",
+        "ux"
+    ],
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs",
+    "dependencies": {
+        "better-sqlite3": "13.0.3",
+        "cors": "2.8.6",
+        "dotenv": "18.0.5",
+        "esbuild": "0.28.2",
+        "express": "5.2.1"
+    },
+    "allowScripts": {
+        "esbuild@0.28.2": true
+    }
+}
