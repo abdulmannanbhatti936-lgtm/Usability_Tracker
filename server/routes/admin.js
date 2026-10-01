@@ -41,6 +41,16 @@ router.post('/sites', (req, res) => {
     res.json({ name, site_key: key, origin });
 });
 
+router.delete('/sites/:id', (req, res) => {
+    const site = db.prepare('SELECT * FROM sites WHERE id=? AND owner_id=?').get(req.params.id, req.user.id);
+    if (!site) return res.status(404).json({ error: 'site not found' });
+    // This cascades or we can just delete it, since foreign keys are ON
+    db.prepare('DELETE FROM sites WHERE id=? AND owner_id=?').run(site.id, req.user.id);
+    // Also delete site analytics data
+    A.deleteSiteData(site.id);
+    res.json({ ok: true });
+});
+
 /* ---------- Site key rotation ---------- */
 router.post('/sites/:id/rotate-key', (req, res) => {
     const site = db.prepare('SELECT * FROM sites WHERE id=? AND owner_id=?').get(req.params.id, req.user.id);

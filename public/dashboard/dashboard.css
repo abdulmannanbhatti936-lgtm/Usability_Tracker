@@ -1,11 +1,11 @@
 :root {
-    --bg: #0f172a;
-    --surface: #1e293b;
-    --card: #1e293b;
-    --card2: #263147;
-    --text: #f1f5f9;
-    --text2: #94a3b8;
-    --line: #334155;
+    --bg: #e0e5ec;
+    --surface: #e0e5ec;
+    --card: #e0e5ec;
+    --card2: #d1d9e6;
+    --text: #2d3748;
+    --text2: #718096;
+    --line: transparent;
     --brand: #ef4444;
     --brand2: #f97316;
     --great: #22c55e;
@@ -13,7 +13,12 @@
     --warn: #f59e0b;
     --bad: #ef4444;
     --info: #3b82f6;
-    --radius: 14px;
+    --radius: 16px;
+    
+    --shadow: 9px 9px 16px rgb(163, 177, 198, 0.6), -9px -9px 16px rgba(255, 255, 255, 0.5);
+    --shadow-sm: 5px 5px 10px rgb(163, 177, 198, 0.6), -5px -5px 10px rgba(255, 255, 255, 0.5);
+    --inner-shadow: inset 6px 6px 10px 0 rgba(163, 177, 198, 0.7), inset -6px -6px 10px 0 rgba(255, 255, 255, 0.8);
+    --inner-shadow-sm: inset 3px 3px 5px 0 rgba(163, 177, 198, 0.7), inset -3px -3px 5px 0 rgba(255, 255, 255, 0.8);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -41,18 +46,18 @@ body {
     min-height: 100vh;
     display: grid;
     place-items: center;
-    background: radial-gradient(ellipse at 60% 40%, #1e0a00 0%, #0f172a 60%);
+    background: var(--bg);
 }
 
 #login .auth-forms form {
     background: var(--surface);
-    border: 1px solid var(--line);
+    border: none;
     padding: 36px;
     border-radius: 20px;
     width: 360px;
     display: grid;
     gap: 14px;
-    box-shadow: 0 25px 60px rgba(0,0,0,.5);
+    box-shadow: var(--shadow);
 }
 
 #login .logo {
@@ -84,18 +89,19 @@ body {
 /* ---- Inputs ---- */
 input, select, textarea {
     padding: 10px 12px;
-    border: 1px solid var(--line);
+    border: none;
     border-radius: 10px;
     font: inherit;
     font-size: 14px;
     background: var(--bg);
     color: var(--text);
-    transition: border-color .15s;
+    box-shadow: var(--inner-shadow);
+    transition: box-shadow .15s;
     width: 100%;
 }
 input:focus, select:focus, textarea:focus {
     outline: none;
-    border-color: var(--brand);
+    box-shadow: var(--inner-shadow), 0 0 0 2px var(--brand);
 }
 
 /* ---- Buttons ---- */
@@ -105,23 +111,26 @@ button { font: inherit; cursor: pointer; border: 0; }
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: #fff;
+    background: var(--surface);
+    color: var(--brand);
     border-radius: 10px;
     padding: 9px 16px;
     font-weight: 600;
     font-size: 13px;
-    transition: opacity .15s, transform .1s;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow .15s, transform .1s, color .15s;
 }
-.btn:hover { opacity: .88; transform: translateY(-1px); }
-.btn:active { transform: none; }
+.btn:hover { box-shadow: var(--shadow); color: var(--brand2); transform: translateY(-1px); }
+.btn:active { box-shadow: var(--inner-shadow-sm); transform: translateY(2px); color: var(--brand); }
 
 .btn.ghost {
     background: var(--surface);
     color: var(--text);
-    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+    border: none;
 }
-.btn.ghost:hover { background: var(--card2); }
+.btn.ghost:hover { box-shadow: var(--shadow); color: var(--brand); }
+.btn.ghost:active { box-shadow: var(--inner-shadow-sm); transform: translateY(2px); }
 
 .btn.success {
     background: linear-gradient(135deg, #22c55e, #16a34a);
@@ -139,7 +148,8 @@ header {
     gap: 10px;
     padding: 14px 24px;
     background: var(--surface);
-    border-bottom: 1px solid var(--line);
+    border-bottom: none;
+    box-shadow: var(--shadow-sm);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -176,8 +186,10 @@ nav {
     gap: 2px;
     padding: 0 24px;
     background: var(--surface);
-    border-bottom: 1px solid var(--line);
+    border-bottom: none;
+    box-shadow: var(--shadow-sm);
     overflow-x: auto;
+    margin-bottom: 12px;
 }
 
 nav button {
@@ -219,9 +231,10 @@ h3 { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
 /* ---- Cards ---- */
 .card {
     background: var(--card);
-    border: 1px solid var(--line);
+    border: none;
     border-radius: var(--radius);
     padding: 18px;
+    box-shadow: var(--shadow);
 }
 
 .grid {

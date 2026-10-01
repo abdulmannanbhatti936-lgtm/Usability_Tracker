@@ -267,13 +267,17 @@
         </div>
 
         <div class="row">
-            <div class="card">
+            <div class="card" style="display:flex; flex-direction:column;">
                 <h3>Traffic &amp; Clicks Over Time</h3>
-                <canvas id="chTs" height="120"></canvas>
+                <div style="flex:1; min-height:0; position:relative; height: 250px;">
+                    <canvas id="chTs"></canvas>
+                </div>
             </div>
-            <div class="card">
+            <div class="card" style="display:flex; flex-direction:column;">
                 <h3>Device Breakdown</h3>
-                <canvas id="chDev" height="220"></canvas>
+                <div style="flex:1; min-height:0; position:relative; height: 250px;">
+                    <canvas id="chDev"></canvas>
+                </div>
             </div>
         </div>
 
@@ -327,7 +331,7 @@
                 }],
             },
             options: {
-                responsive: true,
+                responsive: true, maintainAspectRatio: false,
                 plugins: {
                     legend: { position: 'bottom', labels: { color: '#94a3b8', padding: 10 } },
                 },
@@ -861,6 +865,7 @@
                 <td style="display:flex;gap:6px;flex-wrap:wrap">
                     <button class="btn xs ghost" data-rot="${s.id}" title="Generate a new site key">🔑 Rotate Key</button>
                     <button class="btn xs ghost" data-del="${s.id}" title="Delete all analytics data for this site" style="color:#fca5a5">🗑 Clear Data</button>
+                    <button class="btn xs ghost" data-drop="${s.id}" title="Completely delete this site" style="color:#ef4444; border: 1px solid #ef4444">❌ Delete Site</button>
                 </td>
             </tr>`).join('')}
         </table></div>
@@ -887,6 +892,22 @@
             if (!confirm('Delete ALL analytics data for this site? This cannot be undone.')) return;
             await call('/sites/' + b.dataset.del + '/data', {}, { method: 'DELETE' });
             toast('All data deleted', 'success');
+        }));
+
+        $$('[data-drop]', box).forEach((b) => (b.onclick = async () => {
+            if (!confirm('Are you sure you want to completely DELETE this site and all its data? This CANNOT be undone!')) return;
+            await call('/sites/' + b.dataset.drop, {}, { method: 'DELETE' });
+            toast('Site deleted', 'success');
+            sites = await call('/sites');
+            site = sites[0];
+            $('#siteSel').innerHTML = sites.map((s) =>
+                `<option value="${esc(s.site_key)}" ${s.site_key === site?.site_key ? 'selected' : ''}>${esc(s.name)}</option>`
+            ).join('');
+            if (!site) {
+                switchTab('install');
+            } else {
+                install(box);
+            }
         }));
 
         $('#addSite').onclick = async () => {
