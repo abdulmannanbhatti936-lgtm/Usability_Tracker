@@ -10,12 +10,21 @@ db.pragma('foreign_keys = ON');
 db.pragma('busy_timeout = 5000');
 
 db.exec(`
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT NOT NULL UNIQUE,
+  password TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS sites (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  owner_id INTEGER NOT NULL,
   name TEXT NOT NULL,
   site_key TEXT NOT NULL UNIQUE,
   origin TEXT,
-  created_at INTEGER NOT NULL
+  created_at INTEGER NOT NULL,
+  FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS sessions (
@@ -95,10 +104,6 @@ function addColumnIfMissing(table, column, def) {
 addColumnIfMissing('sessions', 'is_new_visitor', 'INTEGER DEFAULT 1');
 addColumnIfMissing('pageviews', 'load_time_ms', 'INTEGER DEFAULT 0');
 
-// Seed demo site if no sites exist
-if (!db.prepare('SELECT COUNT(*) c FROM sites').get().c) {
-    db.prepare('INSERT INTO sites(name, site_key, origin, created_at) VALUES (?,?,?,?)')
-        .run('Demo Site', 'demo_site_key_123', 'http://localhost:4000', Date.now());
-}
+
 
 module.exports = db;

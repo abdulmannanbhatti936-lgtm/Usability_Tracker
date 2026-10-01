@@ -11,16 +11,33 @@
 </head>
 <body>
 
-<!-- ── Login ────────────────────────────────────────────── -->
+<!-- ── Login & Signup ──────────────────────────────────────── -->
 <div id="login">
-    <form id="loginForm">
-        <div class="logo">🔥</div>
-        <h1>Usability Tracker</h1>
-        <p>Enter your admin token to continue</p>
-        <input id="tokenInput" type="password" placeholder="Admin token" autocomplete="current-password" required>
-        <button type="submit" class="btn" id="loginBtn">Login →</button>
-        <div id="loginErr"></div>
-    </form>
+    <div class="auth-forms">
+        <!-- Login Form -->
+        <form id="loginForm">
+            <div class="logo">🔥</div>
+            <h1>Usability Tracker</h1>
+            <p>Welcome back</p>
+            <input id="loginEmail" type="email" placeholder="Email address" autocomplete="email" required>
+            <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password" required>
+            <button type="submit" class="btn" id="loginBtn">Login →</button>
+            <div class="auth-toggle">Don't have an account? <a href="#" id="showSignup">Sign up</a></div>
+            <div id="loginErr" class="err-msg"></div>
+        </form>
+
+        <!-- Signup Form -->
+        <form id="signupForm" hidden>
+            <div class="logo">🔥</div>
+            <h1>Create Account</h1>
+            <p>Start tracking your websites</p>
+            <input id="signupEmail" type="email" placeholder="Email address" autocomplete="email" required>
+            <input id="signupPassword" type="password" placeholder="Password (min 6 chars)" minlength="6" autocomplete="new-password" required>
+            <button type="submit" class="btn" id="signupBtn">Sign Up →</button>
+            <div class="auth-toggle">Already have an account? <a href="#" id="showLogin">Log in</a></div>
+            <div id="signupErr" class="err-msg"></div>
+        </form>
+    </div>
 </div>
 
 <!-- ── App ──────────────────────────────────────────────── -->

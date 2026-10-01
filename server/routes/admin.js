@@ -8,11 +8,11 @@ const { HMAC_SECRET, RETENTION_DAYS } = require('../config');
 const router = express.Router();
 router.use(auth);
 
-const getSite = db.prepare('SELECT * FROM sites WHERE site_key = ?');
+const getSite = db.prepare('SELECT * FROM sites WHERE site_key = ? AND owner_id = ?');
 
 function withSite(handler) {
     return (req, res) => {
-        const site = getSite.get(req.query.site || '');
+        const site = getSite.get(req.query.site || '', req.user.id);
         if (!site) return res.status(404).json({ error: 'site not found' });
         try {
             const out = handler(site, A.parseFilters(req.query, site), req);
@@ -29,7 +29,7 @@ function withSite(handler) {
 router.get('/ping', (req, res) => res.json({ ok: true }));
 
 router.get('/sites', (req, res) => {
-    res.json(db.prepare('SELECT id, name, site_key, origin, created_at FROM sites ORDER BY id').all());
+    res.json(db.prepare('SELECT id, name, site_key, origin, created_at FROM sites WHERE owner_id=? ORDER BY id').all(req.user.id));
 });
 
 router.post('/sites', (req, res) => {
@@ -37,16 +37,16 @@ router.post('/sites', (req, res) => {
     const origin = String(req.body.origin || '').slice(0, 200).trim();
     if (!name) return res.status(400).json({ error: 'name required' });
     const key = 'site_' + crypto.randomBytes(12).toString('hex');
-    db.prepare('INSERT INTO sites(name, site_key, origin, created_at) VALUES (?,?,?,?)').run(name, key, origin, Date.now());
+    db.prepare('INSERT INTO sites(owner_id, name, site_key, origin, created_at) VALUES (?,?,?,?,?)').run(req.user.id, name, key, origin, Date.now());
     res.json({ name, site_key: key, origin });
 });
 
 /* ---------- Site key rotation ---------- */
 router.post('/sites/:id/rotate-key', (req, res) => {
-    const site = db.prepare('SELECT * FROM sites WHERE id=?').get(req.params.id);
+    const site = db.prepare('SELECT * FROM sites WHERE id=? AND owner_id=?').get(req.params.id, req.user.id);
     if (!site) return res.status(404).json({ error: 'site not found' });
     const newKey = 'site_' + crypto.randomBytes(12).toString('hex');
-    db.prepare('UPDATE sites SET site_key=? WHERE id=?').run(newKey, site.id);
+    db.prepare('UPDATE sites SET site_key=? WHERE id=? AND owner_id=?').run(newKey, site.id, req.user.id);
     // Update all existing data to use new key association (site_id stays same)
     res.json({ site_key: newKey, message: 'Key rotated. Update your embed scripts.' });
 });
@@ -133,14 +133,14 @@ router.get('/export/:type', (req, res) => {
 
 /* ---------- Data management ---------- */
 router.delete('/sites/:id/data', (req, res) => {
-    const site = db.prepare('SELECT * FROM sites WHERE id=?').get(req.params.id);
+    const site = db.prepare('SELECT * FROM sites WHERE id=? AND owner_id=?').get(req.params.id, req.user.id);
     if (!site) return res.status(404).json({ error: 'site not found' });
     A.deleteSiteData(site.id);
     res.json({ ok: true, message: `All data for "${site.name}" deleted` });
 });
 
 router.post('/sites/:id/purge', (req, res) => {
-    const site = db.prepare('SELECT * FROM sites WHERE id=?').get(req.params.id);
+    const site = db.prepare('SELECT * FROM sites WHERE id=? AND owner_id=?').get(req.params.id, req.user.id);
     if (!site) return res.status(404).json({ error: 'site not found' });
     const days = parseInt(req.body.days || RETENTION_DAYS, 10);
     const result = A.purgeOldData(site.id, days);

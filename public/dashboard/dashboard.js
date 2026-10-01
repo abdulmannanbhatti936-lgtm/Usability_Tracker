@@ -42,7 +42,7 @@
         });
         const r = await fetch(u, {
             method: opt.method || 'GET',
-            headers: { 'x-admin-token': token, 'Content-Type': 'application/json' },
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
             body: opt.body ? JSON.stringify(opt.body) : undefined,
         });
         if (r.status === 401) { showLogin(); throw new Error('Unauthorized'); }
@@ -69,21 +69,56 @@
     function showLogin() {
         $('#app').hidden = true;
         $('#login').hidden = false;
+        $('#loginForm').hidden = false;
+        $('#signupForm').hidden = true;
+    }
+
+    $('#showSignup').onclick = (e) => { e.preventDefault(); $('#loginForm').hidden = true; $('#signupForm').hidden = false; };
+    $('#showLogin').onclick = (e) => { e.preventDefault(); $('#signupForm').hidden = true; $('#loginForm').hidden = false; };
+
+    async function authCall(path, body, errEl) {
+        try {
+            const r = await fetch('/api/auth' + path, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const data = await r.json();
+            if (!r.ok) throw new Error(data.error || 'Authentication failed');
+            return data.token;
+        } catch (e) {
+            errEl.textContent = '✗ ' + e.message;
+            throw e;
+        }
     }
 
     $('#loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = $('#loginBtn');
         btn.textContent = 'Logging in…';
-        token = $('#tokenInput').value.trim();
+        const errEl = $('#loginErr');
+        errEl.textContent = '';
         try {
-            await call('/ping');
+            token = await authCall('/login', { email: $('#loginEmail').value, password: $('#loginPassword').value }, errEl);
             localStorage.setItem('ut_token', token);
-            $('#loginErr').textContent = '';
             boot();
         } catch {
-            $('#loginErr').textContent = '✗ Wrong token — try again';
             btn.textContent = 'Login →';
+        }
+    });
+
+    $('#signupForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = $('#signupBtn');
+        btn.textContent = 'Signing up…';
+        const errEl = $('#signupErr');
+        errEl.textContent = '';
+        try {
+            token = await authCall('/signup', { email: $('#signupEmail').value, password: $('#signupPassword').value }, errEl);
+            localStorage.setItem('ut_token', token);
+            boot();
+        } catch {
+            btn.textContent = 'Sign Up →';
         }
     });
 

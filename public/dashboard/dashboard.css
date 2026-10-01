@@ -44,7 +44,7 @@ body {
     background: radial-gradient(ellipse at 60% 40%, #1e0a00 0%, #0f172a 60%);
 }
 
-#login form {
+#login .auth-forms form {
     background: var(--surface);
     border: 1px solid var(--line);
     padding: 36px;
@@ -77,8 +77,10 @@ body {
     font-size: 13px;
 }
 
-#loginErr { color: var(--bad); font-size: 13px; text-align: center; min-height: 20px; }
-
+.auth-toggle { text-align: center; font-size: 13px; color: var(--text2); margin-top: 4px; }
+.auth-toggle a { color: var(--brand); text-decoration: none; font-weight: 600; }
+.auth-toggle a:hover { text-decoration: underline; }
+.err-msg { color: var(--bad); font-size: 13px; text-align: center; min-height: 20px; }
 /* ---- Inputs ---- */
 input, select, textarea {
     padding: 10px 12px;

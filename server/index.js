@@ -46,7 +46,10 @@ app.use(express.static(path.join(__dirname, '..', 'public'), {
 /* ---------- Routes ---------- */
 app.use('/api/collect', collectCors);
 app.use('/api/admin', adminCors);
+app.use('/api/auth', adminCors); // Same CORS rules as admin
+
 app.use('/api', require('./routes/collect'));
+app.use('/api/auth', require('./routes/auth'));
 app.use('/api/admin', require('./routes/admin'));
 
 app.get('/', (req, res) => res.redirect('/dashboard/'));
